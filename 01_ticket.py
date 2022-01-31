@@ -20,7 +20,6 @@
 
 import os
 import pathlib
-from pathlib import Path, PureWindowsPath
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 
 
@@ -31,18 +30,39 @@ class TicketFiller:
         self.from_ = from_
         self.to = to
         self.date = date
-        # self.template = PureWindowsPath("images", "ticket.template.jpg") if template is None else template
         self.template = pathlib.Path(
-            "C:\\Users\\Home\\PycharmProjects\\AirLineTicketFiller\\images\\ticket_template.png") if template is None else template        # if font_path is None:
-        #     self.font_path = os.path.join("fonts", "ofont_ru_DS Eraser2.ttf")
-        # else:
-        #     self.font_path = font_path
+            "C:\\Users\\Home\\PycharmProjects\\AirLineTicketFiller\\images\\ticket_template.png") \
+            if template is None else template
+        self.font_path = pathlib.Path((
+            "C:\\Users\\Home\\PycharmProjects\\AirLineTicketFiller\\fonts\\Cyntho Next Slab.ttf"))
 
     def make_ticket(self):
         ticket = Image.open(self.template)
+        width, height = ticket.size
+        x = 717 - width
+        y_fio = ticket.size[1] - 280
+        y_from = ticket.size[1] - 210
+        y_to = ticket.size[1] - 144
+        x_date = 957 - width
+        print(width, height)
+        draw = ImageDraw.Draw(ticket)
+        font = ImageFont.truetype(str(self.font_path), size=20)
+        font_date = ImageFont.truetype(str(self.font_path), size=15)
+        draw.text((x, y_fio), text=self.fio, font=font, fill=ImageColor.colormap['black'])
+        draw.text((x, y_from), text=self.from_, font=font, fill=ImageColor.colormap['black'])
+        draw.text((x, y_to), text=self.to, font=font, fill=ImageColor.colormap['black'])
+        draw.text((x_date, y_to + 4), text=self.date, font=font_date, fill=ImageColor.colormap['black'])
         ticket.show()
 
 
 if __name__ == '__main__':
-    ticket_filler = TicketFiller(fio='Boev R.S', from_='Moscow', to='New York', date='12.09.2022')
+    print(f'Введите ФИО')
+    fio = input()
+    print(f'Откуда вылет?')
+    from_ = input()
+    print(f'Куда летите?')
+    to = input()
+    print(f'Когда?')
+    date = input()
+    ticket_filler = TicketFiller(fio=fio, from_=from_, to=to, date=date)
     ticket_filler.make_ticket()
