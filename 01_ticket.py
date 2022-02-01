@@ -17,15 +17,16 @@
 #   --date - обязательный, когда летим.
 #   --save_to - необязательный, путь для сохранения заполненнего билета.
 # и заполнять билет.
-
-import os
+import argparse
 import pathlib
+from pprint import pprint
+
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 
 
 class TicketFiller:
 
-    def __init__(self, fio, from_, to, date, template=None, font_path=None):
+    def __init__(self, fio, from_, to, date, save_path=None, template=None):
         self.fio = fio
         self.from_ = from_
         self.to = to
@@ -35,6 +36,7 @@ class TicketFiller:
             if template is None else template
         self.font_path = pathlib.Path((
             "C:\\Users\\Home\\PycharmProjects\\AirLineTicketFiller\\fonts\\Cyntho Next Slab.ttf"))
+        self.save_path = save_path if save_path is None else save_path
 
     def make_ticket(self):
         ticket = Image.open(self.template)
@@ -44,7 +46,7 @@ class TicketFiller:
         y_from = ticket.size[1] - 210
         y_to = ticket.size[1] - 144
         x_date = 957 - width
-        print(width, height)
+        # print(width, height)
         draw = ImageDraw.Draw(ticket)
         font = ImageFont.truetype(str(self.font_path), size=20)
         font_date = ImageFont.truetype(str(self.font_path), size=15)
@@ -53,16 +55,18 @@ class TicketFiller:
         draw.text((x, y_to), text=self.to, font=font, fill=ImageColor.colormap['black'])
         draw.text((x_date, y_to + 4), text=self.date, font=font_date, fill=ImageColor.colormap['black'])
         ticket.show()
+        ticket.save(self.save_path, format='PNG')
 
 
 if __name__ == '__main__':
-    print(f'Введите ФИО')
-    fio = input()
-    print(f'Откуда вылет?')
-    from_ = input()
-    print(f'Куда летите?')
-    to = input()
-    print(f'Когда?')
-    date = input()
-    ticket_filler = TicketFiller(fio=fio, from_=from_, to=to, date=date)
+    parser = argparse.ArgumentParser(description='Программа для заполнения билета')
+    parser.add_argument('-fio', dest='fio', type=str, help='Введите ФИО?')
+    parser.add_argument('-from', dest='from_', type=str, help='Откуда летите?')
+    parser.add_argument('-to', dest='to', type=str, help='Откуда летите?')
+    parser.add_argument('-date', dest='date', type=str, help='Когда?')
+    parser.add_argument('--save_to', dest='save_path', type=str, help='путь для сохранения билета')
+    args = parser.parse_args()
+    pprint(args)
+
+    ticket_filler = TicketFiller(fio=args.fio, from_=args.from_, to=args.to, date=args.date, save_path=args.save_path)
     ticket_filler.make_ticket()
